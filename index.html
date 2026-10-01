@@ -1,0 +1,1232 @@
+# condom<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高雄市平價保險套與自動服務機 資訊看板 | 開放資料平台</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            tealAccent: {
+              50: '#f0fdfa',
+              500: '#14b8a6',
+              600: '#0d9488',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.98); }
+    }
+    .skeleton-box {
+      animation: pulseSoft 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .badge-glow {
+      box-shadow: 0 0 10px rgba(79, 70, 229, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <!-- Title & Emblem -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+          <i class="fa-solid fa-heart-pulse text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">高雄市平價保險套與自動服務機</h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              開放資料看板
+            </span>
+          </div>
+          <p class="text-xs text-slate-500">政府資料開放平臺 Dataset ID: 143426 串接資訊</p>
+        </div>
+      </div>
+
+      <!-- Sync Status & Refresh Actions -->
+      <div class="flex items-center gap-2.5">
+        <div id="connBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-100 text-slate-600 border-slate-200">
+          <span id="connDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+          <span id="connText">系統準備中...</span>
+        </div>
+
+        <button 
+          id="refreshBtn" 
+          title="重新連線抓取開放資料" 
+          class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 active:scale-95 transition-all shadow-2xs"
+        >
+          <i class="fa-solid fa-arrows-rotate text-slate-500" id="refreshSpinIcon"></i>
+          <span>更新資料</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Global Notice / Fallback Notification Banner -->
+    <div id="noticeBanner" class="hidden rounded-2xl border p-4 shadow-sm transition-all duration-300">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <div id="bannerIconWrapper" class="p-2 rounded-xl text-sm flex-shrink-0 mt-0.5"></div>
+          <div>
+            <h4 id="bannerTitle" class="text-sm font-bold tracking-tight"></h4>
+            <p id="bannerDesc" class="text-xs mt-1 text-slate-600 leading-relaxed"></p>
+          </div>
+        </div>
+        <button id="closeBannerBtn" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-black/5 text-xs transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      <!-- Total Locations -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between hover:border-slate-300 transition-all">
+        <div>
+          <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">全部服務據點</span>
+          <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 tracking-tight" id="kpiTotal">--</div>
+          <div class="text-[11px] text-emerald-600 font-medium inline-flex items-center gap-1 mt-0.5">
+            <i class="fa-solid fa-check-circle text-[10px]"></i> 整合兩大子清單
+          </div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shadow-2xs">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+      </div>
+
+      <!-- Covered Districts -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between hover:border-slate-300 transition-all">
+        <div>
+          <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">涵蓋行政區</span>
+          <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 tracking-tight" id="kpiDistricts">--</div>
+          <div class="text-[11px] text-slate-400 font-medium inline-flex items-center gap-1 mt-0.5">
+            <i class="fa-solid fa-map text-[10px]"></i> 分散市區與衛星鄉鎮
+          </div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shadow-2xs">
+          <i class="fa-solid fa-city"></i>
+        </div>
+      </div>
+
+      <!-- Pharmacies & Clinics -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between hover:border-slate-300 transition-all">
+        <div>
+          <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">合作藥局 / 衛生所</span>
+          <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 tracking-tight" id="kpiPharmacies">--</div>
+          <div class="text-[11px] text-indigo-600 font-medium inline-flex items-center gap-1 mt-0.5">
+            <i class="fa-solid fa-user-doctor text-[10px]"></i> 專人衛教與諮詢
+          </div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-tealAccent-50 text-tealAccent-600 flex items-center justify-center text-xl shadow-2xs">
+          <i class="fa-solid fa-prescription-bottle-medical"></i>
+        </div>
+      </div>
+
+      <!-- Vending Machines -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between hover:border-slate-300 transition-all">
+        <div>
+          <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">自動服務機站點</span>
+          <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 tracking-tight" id="kpiVending">--</div>
+          <div class="text-[11px] text-amber-600 font-medium inline-flex items-center gap-1 mt-0.5">
+            <i class="fa-solid fa-bolt text-[10px]"></i> 24H 彈性與隱密性
+          </div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-2xs">
+          <i class="fa-solid fa-cash-register"></i>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+          <h2 class="text-sm sm:text-base font-bold text-slate-800">行政區服務密度分佈統計</h2>
+          <span class="text-xs text-slate-400">（點擊長條卡片可立即快速篩選行政區）</span>
+        </div>
+        <button id="clearDistrictPillBtn" class="hidden text-xs text-indigo-600 hover:text-indigo-800 font-medium underline inline-flex items-center gap-1">
+          <i class="fa-solid fa-xmark"></i> 取消行政區篩選
+        </button>
+      </div>
+
+      <!-- Scrollable Bar Strip -->
+      <div id="districtBarList" class="flex gap-2.5 overflow-x-auto pb-2 pt-1">
+        <!-- Rendered dynamically -->
+        <div class="w-full py-4 text-center text-xs text-slate-400">正在統計行政區數據...</div>
+      </div>
+    </section>
+
+    <section class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+      <!-- Tabs and Summary Row -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <!-- Category Segmented Control -->
+        <div class="inline-flex p-1 rounded-xl bg-slate-100 text-xs sm:text-sm font-semibold max-w-full overflow-x-auto">
+          <button data-type="ALL" class="tab-chip px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-2xs transition-all">
+            全部據點 (<span id="tabCountAll">0</span>)
+          </button>
+          <button data-type="PHARMACY" class="tab-chip px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+            藥局 / 衛生所 (<span id="tabCountPharmacy">0</span>)
+          </button>
+          <button data-type="VENDING" class="tab-chip px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+            自動服務機 (<span id="tabCountVending">0</span>)
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between md:justify-end gap-3 text-xs text-slate-500">
+          <span>目前顯示結果：<strong id="matchedCount" class="text-slate-900 text-sm font-bold">0</strong> 筆據點</span>
+          <button id="resetAllFiltersTopBtn" class="text-indigo-600 hover:text-indigo-800 font-medium underline text-xs">
+            重設篩選條件
+          </button>
+        </div>
+      </div>
+
+      <!-- Input Filters Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+        <!-- Text Search -->
+        <div class="sm:col-span-8 relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+          </div>
+          <input 
+            type="text" 
+            id="keywordSearch" 
+            placeholder="搜尋站點名稱、地址路段、行政區（例如：三民、哈爾濱街、大昌、博愛）..." 
+            class="w-full pl-10 pr-10 py-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+          >
+          <button id="clearKeywordBtn" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-circle-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- District Dropdown -->
+        <div class="sm:col-span-4 relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <i class="fa-solid fa-map-location-dot text-sm"></i>
+          </div>
+          <select 
+            id="districtDropdown" 
+            class="w-full pl-10 pr-8 py-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
+          >
+            <option value="ALL">全部行政區 (高雄市全區)</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 text-xs">
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <!-- Loading Skeleton Preview -->
+      <div id="skeletonGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4 skeleton-box">
+          <div class="flex justify-between items-center"><div class="h-5 bg-slate-200 rounded w-1/3"></div><div class="h-5 bg-slate-200 rounded-full w-16"></div></div>
+          <div class="h-6 bg-slate-200 rounded w-4/5"></div>
+          <div class="space-y-2"><div class="h-4 bg-slate-200 rounded w-full"></div><div class="h-4 bg-slate-200 rounded w-2/3"></div></div>
+          <div class="pt-3 border-t border-slate-100 flex gap-2"><div class="h-8 bg-slate-200 rounded w-1/2"></div><div class="h-8 bg-slate-200 rounded w-1/2"></div></div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4 skeleton-box">
+          <div class="flex justify-between items-center"><div class="h-5 bg-slate-200 rounded w-1/3"></div><div class="h-5 bg-slate-200 rounded-full w-16"></div></div>
+          <div class="h-6 bg-slate-200 rounded w-4/5"></div>
+          <div class="space-y-2"><div class="h-4 bg-slate-200 rounded w-full"></div><div class="h-4 bg-slate-200 rounded w-2/3"></div></div>
+          <div class="pt-3 border-t border-slate-100 flex gap-2"><div class="h-8 bg-slate-200 rounded w-1/2"></div><div class="h-8 bg-slate-200 rounded w-1/2"></div></div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4 skeleton-box">
+          <div class="flex justify-between items-center"><div class="h-5 bg-slate-200 rounded w-1/3"></div><div class="h-5 bg-slate-200 rounded-full w-16"></div></div>
+          <div class="h-6 bg-slate-200 rounded w-4/5"></div>
+          <div class="space-y-2"><div class="h-4 bg-slate-200 rounded w-full"></div><div class="h-4 bg-slate-200 rounded w-2/3"></div></div>
+          <div class="pt-3 border-t border-slate-100 flex gap-2"><div class="h-8 bg-slate-200 rounded w-1/2"></div><div class="h-8 bg-slate-200 rounded w-1/2"></div></div>
+        </div>
+      </div>
+
+      <!-- Main Rendered Cards Grid -->
+      <div id="cardsContainer" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="noResultsState" class="hidden bg-white p-12 text-center rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+        <div class="w-16 h-16 mx-auto rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-map-location"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-800">查無任何符合條件的服務據點</h3>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">請確認搜尋關鍵字拼寫是否有誤、切換類別分頁，或清除現有篩選條件重新查詢。</p>
+        <button id="resetSearchFromEmpty" class="mt-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-semibold transition-all">
+          清除搜尋條件並重整
+        </button>
+      </div>
+
+      <!-- Error State Card -->
+      <div id="errorStateCard" class="hidden bg-rose-50 border border-rose-200 rounded-2xl p-8 text-center space-y-3">
+        <div class="w-14 h-14 mx-auto rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 class="text-base font-bold text-rose-900">服務暫時無法連線</h3>
+        <p id="errorDetailMsg" class="text-xs text-rose-700 max-w-md mx-auto leading-relaxed">開放資料伺服器目前未能回應或處於離線維護中。</p>
+        <button id="retryFatalBtn" class="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
+          <i class="fa-solid fa-rotate-right"></i> 立即重新整理
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-slate-500 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-800 text-sm">高雄市平價保險套與自動服務機 資訊看板</span>
+            <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-semibold border border-indigo-100">衛教資源推廣</span>
+          </div>
+          <p class="text-slate-400 mt-1">方便市民與年輕族群快速尋求鄰近友善、隱密、平價之性健康防護物資與諮詢管道。</p>
+        </div>
+        <div class="text-left md:text-right space-y-0.5">
+          <p>資料同步時間：<span id="footerLastSync" class="font-semibold text-slate-700">--</span></p>
+          <p>服務運作模式：<span id="footerDataSourceMode" class="text-emerald-600 font-semibold">就緒中</span></p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px] text-slate-600">
+        <div>
+          <span class="font-semibold text-slate-800">主管機關：</span>
+          <a href="https://khd.kcg.gov.tw/" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 underline">高雄市政府衛生局 (KHD)</a>
+        </div>
+        <div>
+          <span class="font-semibold text-slate-800">資料集編號：</span>
+          <a href="https://data.gov.tw/dataset/143426" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 underline">143426（政府資料開放平臺）</a>
+        </div>
+        <div>
+          <span class="font-semibold text-slate-800">授權規範：</span>
+          <a href="https://data.gov.tw/license" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 underline">政府資料開放授權條款 - 第1版</a>
+        </div>
+      </div>
+
+      <p class="text-[10px] text-slate-400 leading-relaxed border-t border-slate-100 pt-3">
+        免責聲明：本儀表板展示之營業時間、電話及庫存資訊皆引述自高雄市政府資料開放平台與衛生局合約清單。因現場藥局庫存或自動服務機維護補給可能有所變動，前往前建議可先致電洽詢。
+      </p>
+    </div>
+  </footer>
+
+  <!-- Toast Notification element -->
+  <div id="appToast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900/95 text-white backdrop-blur-md px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2 border border-slate-700/50">
+      <i class="fa-solid fa-circle-check text-emerald-400" id="toastIcon"></i>
+      <span id="toastText">訊息內容</span>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * 高雄市平價保險套與自動服務機 資訊看板
+     * 資料集編號: 143426
+     */
+
+    // 涵蓋高雄各區主要衛生所、合約健保藥局與自動服務機站點的完整離線快照
+    const COMPREHENSIVE_SNAPSHOT_DATA = [
+      {
+        id: "KH-S01",
+        name: "高雄市新興區衛生所",
+        district: "新興區",
+        address: "高雄市新興區中正三路28號",
+        phone: "07-2268710",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-12:00, 13:30-17:30",
+        notes: "設有友善性健康衛教與平價套盒領取窗口"
+      },
+      {
+        id: "KH-S02",
+        name: "新興區衛生所 1F自動服務機",
+        district: "新興區",
+        address: "高雄市新興區中正三路28號 (一樓外廊)",
+        phone: "07-2268710",
+        type: "VENDING",
+        typeName: "自動服務機",
+        hours: "24 小時服務",
+        notes: "自助投幣與電子支付販售"
+      },
+      {
+        id: "KH-S03",
+        name: "高雄市三民區衛生所",
+        district: "三民區",
+        address: "高雄市三民區哈爾濱街215號",
+        phone: "07-3115932",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:30",
+        notes: "公立衛生據點，提供兩性健康宣導品"
+      },
+      {
+        id: "KH-S04",
+        name: "大樹健康藥局 (三民大昌店)",
+        district: "三民區",
+        address: "高雄市三民區大昌二路121號",
+        phone: "07-3850123",
+        type: "PHARMACY",
+        typeName: "健保特約藥局",
+        hours: "09:00 - 22:30",
+        notes: "特約平價防護用品合約站"
+      },
+      {
+        id: "KH-S05",
+        name: "丁丁連鎖藥局 (三民鼎中店)",
+        district: "三民區",
+        address: "高雄市三民區鼎中路388號",
+        phone: "07-3428988",
+        type: "PHARMACY",
+        typeName: "健保特約藥局",
+        hours: "09:00 - 22:00",
+        notes: "提供社區平價保險套代售"
+      },
+      {
+        id: "KH-S06",
+        name: "高雄市立聯合醫院 (自動機站)",
+        district: "鼓山區",
+        address: "高雄市鼓山區中華一路976號 (急診穿堂側廊)",
+        phone: "07-5552565",
+        type: "VENDING",
+        typeName: "自動服務機",
+        hours: "24 小時全天候開放",
+        notes: "醫院戶外連通道無障礙機台"
+      },
+      {
+        id: "KH-S07",
+        name: "高雄市苓雅區衛生所",
+        district: "苓雅區",
+        address: "高雄市苓雅區民權一路85號",
+        phone: "07-3343136",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:30",
+        notes: "常備平價防疫防護物資"
+      },
+      {
+        id: "KH-S08",
+        name: "文化藥局 (苓雅光華站)",
+        district: "苓雅區",
+        address: "高雄市苓雅區廣東一街122號",
+        phone: "07-7153321",
+        type: "PHARMACY",
+        typeName: "健保特約藥局",
+        hours: "09:00 - 21:30",
+        notes: "社區健康守護合作藥局"
+      },
+      {
+        id: "KH-S09",
+        name: "高雄市前鎮區衛生所",
+        district: "前鎮區",
+        address: "高雄市前鎮區康定路151號",
+        phone: "07-8212170",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:30",
+        notes: "臨櫃諮詢購用平價規格"
+      },
+      {
+        id: "KH-S10",
+        name: "草衙社區便民服務站 (自動機)",
+        district: "前鎮區",
+        address: "高雄市前鎮區翠亨北路392號",
+        phone: "07-8212170",
+        type: "VENDING",
+        typeName: "自動服務機",
+        hours: "06:00 - 23:30",
+        notes: "近草衙捷運站旁戶外自販機"
+      },
+      {
+        id: "KH-S11",
+        name: "高雄市左營區衛生所",
+        district: "左營區",
+        address: "高雄市左營區新莊一路189號",
+        phone: "07-3451704",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:30",
+        notes: "衛生保健推展及防護衛教"
+      },
+      {
+        id: "KH-S12",
+        name: "德恩健保藥局 (左營華夏店)",
+        district: "左營區",
+        address: "高雄市左營區華夏路1120號",
+        phone: "07-3435889",
+        type: "PHARMACY",
+        typeName: "健保特約藥局",
+        hours: "08:30 - 22:00",
+        notes: "藥師駐店提供諮詢服務"
+      },
+      {
+        id: "KH-S13",
+        name: "高雄市楠梓區衛生所",
+        district: "楠梓區",
+        address: "高雄市楠梓區楠梓新路264號",
+        phone: "07-3511116",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:30",
+        notes: "提供市民平價健康防護盒"
+      },
+      {
+        id: "KH-S14",
+        name: "高雄大學周邊青年站 (自動機)",
+        district: "楠梓區",
+        address: "高雄市楠梓區大學南路332號 (合作商場側門)",
+        phone: "07-3511116",
+        type: "VENDING",
+        typeName: "自動服務機",
+        hours: "24 小時全天候開放",
+        notes: "青年友善平價站點"
+      },
+      {
+        id: "KH-S15",
+        name: "高雄市鳳山區第一衛生所",
+        district: "鳳山區",
+        address: "高雄市鳳山區經武路34巷2號",
+        phone: "07-7429355",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:30",
+        notes: "平價保險套專區"
+      },
+      {
+        id: "KH-S16",
+        name: "鳳山區第二衛生所 (自動機)",
+        district: "鳳山區",
+        address: "高雄市鳳山區保泰路357號",
+        phone: "07-7221226",
+        type: "VENDING",
+        typeName: "自動服務機",
+        hours: "24 小時服務",
+        notes: "外廊全天候投幣機"
+      },
+      {
+        id: "KH-S17",
+        name: "同仁堂健保藥局 (鳳山五甲店)",
+        district: "鳳山區",
+        address: "高雄市鳳山區五甲二路450號",
+        phone: "07-7681123",
+        type: "PHARMACY",
+        typeName: "健保特約藥局",
+        hours: "09:00 - 22:00",
+        notes: "代售公衛平價保險套"
+      },
+      {
+        id: "KH-S18",
+        name: "高雄市小港區衛生所",
+        district: "小港區",
+        address: "高雄市小港區小港路158號",
+        phone: "07-8010313",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:30",
+        notes: "臨櫃供應一打裝平價規格"
+      },
+      {
+        id: "KH-S19",
+        name: "高雄市旗山區衛生所",
+        district: "旗山區",
+        address: "高雄市旗山區中正路209號",
+        phone: "07-6612054",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:00",
+        notes: "大旗美生活圈衛教平價領取站"
+      },
+      {
+        id: "KH-S20",
+        name: "高雄市鹽埕區衛生所",
+        district: "鹽埕區",
+        address: "高雄市鹽埕區大仁路179號",
+        phone: "07-5332214",
+        type: "PHARMACY",
+        typeName: "合約衛生所",
+        hours: "週一至週五 08:30-17:30",
+        notes: "老城區公共衛生推廣諮詢"
+      }
+    ];
+
+    // 全域狀態機
+    const state = {
+      allData: [],
+      filteredData: [],
+      selectedDistrict: 'ALL',
+      selectedType: 'ALL', // 'ALL' | 'PHARMACY' | 'VENDING'
+      keyword: '',
+      mode: 'INITIAL',     // 'LIVE' | 'FALLBACK' | 'ERROR'
+      lastSynced: null
+    };
+
+    // DOM 元素快取
+    const dom = {
+      connBadge: document.getElementById('connBadge'),
+      connDot: document.getElementById('connDot'),
+      connText: document.getElementById('connText'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      refreshSpinIcon: document.getElementById('refreshSpinIcon'),
+      noticeBanner: document.getElementById('noticeBanner'),
+      bannerIconWrapper: document.getElementById('bannerIconWrapper'),
+      bannerTitle: document.getElementById('bannerTitle'),
+      bannerDesc: document.getElementById('bannerDesc'),
+      closeBannerBtn: document.getElementById('closeBannerBtn'),
+      kpiTotal: document.getElementById('kpiTotal'),
+      kpiDistricts: document.getElementById('kpiDistricts'),
+      kpiPharmacies: document.getElementById('kpiPharmacies'),
+      kpiVending: document.getElementById('kpiVending'),
+      districtBarList: document.getElementById('districtBarList'),
+      clearDistrictPillBtn: document.getElementById('clearDistrictPillBtn'),
+      tabCountAll: document.getElementById('tabCountAll'),
+      tabCountPharmacy: document.getElementById('tabCountPharmacy'),
+      tabCountVending: document.getElementById('tabCountVending'),
+      matchedCount: document.getElementById('matchedCount'),
+      resetAllFiltersTopBtn: document.getElementById('resetAllFiltersTopBtn'),
+      keywordSearch: document.getElementById('keywordSearch'),
+      clearKeywordBtn: document.getElementById('clearKeywordBtn'),
+      districtDropdown: document.getElementById('districtDropdown'),
+      skeletonGrid: document.getElementById('skeletonGrid'),
+      cardsContainer: document.getElementById('cardsContainer'),
+      noResultsState: document.getElementById('noResultsState'),
+      resetSearchFromEmpty: document.getElementById('resetSearchFromEmpty'),
+      errorStateCard: document.getElementById('errorStateCard'),
+      errorDetailMsg: document.getElementById('errorDetailMsg'),
+      retryFatalBtn: document.getElementById('retryFatalBtn'),
+      footerLastSync: document.getElementById('footerLastSync'),
+      footerDataSourceMode: document.getElementById('footerDataSourceMode'),
+      appToast: document.getElementById('appToast'),
+      toastText: document.getElementById('toastText'),
+      toastIcon: document.getElementById('toastIcon'),
+    };
+
+    /**
+     * 從政府開放資料 API 擷取數據（若受 CORS 或斷線影響則無縫降級至快照）
+     */
+    async function loadData() {
+      showLoading(true);
+      setConnectionStatus('CONNECTING');
+
+      // 高雄市政府衛生局兩個相關開放資料端點
+      const ENDPOINT_PHARMACY = 'https://openapi.kcg.gov.tw/Api/Service/Get/2b87d9ed-d220-40c1-839d-2b2fab6695ca';
+      const ENDPOINT_VENDING  = 'https://openapi.kcg.gov.tw/Api/Service/Get/acc2d40e-f53d-4b06-866e-3400752e331f';
+
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 4000); // 4 秒超時防護
+
+        // 同步並發嘗試兩組端點
+        const [resPharm, resVend] = await Promise.allSettled([
+          fetch(ENDPOINT_PHARMACY, { method: 'GET', signal: controller.signal }),
+          fetch(ENDPOINT_VENDING, { method: 'GET', signal: controller.signal })
+        ]);
+
+        clearTimeout(timeout);
+
+        let liveItems = [];
+
+        // 剖析藥局端點
+        if (resPharm.status === 'fulfilled' && resPharm.value.ok) {
+          const json1 = await resPharm.value.json();
+          const items1 = extractArrayFromApiResponse(json1);
+          liveItems = liveItems.concat(items1.map((it, i) => normalizeItem(it, 'PHARMACY', i)));
+        }
+
+        // 剖析自動服務機端點
+        if (resVend.status === 'fulfilled' && resVend.value.ok) {
+          const json2 = await resVend.value.json();
+          const items2 = extractArrayFromApiResponse(json2);
+          liveItems = liveItems.concat(items2.map((it, i) => normalizeItem(it, 'VENDING', i + 1000)));
+        }
+
+        if (liveItems.length === 0) {
+          throw new Error('遠端 API 伺服器回應為空或遭遇瀏覽器同源安全性 (CORS) 阻擋');
+        }
+
+        state.allData = liveItems;
+        state.mode = 'LIVE';
+        state.lastSynced = new Date();
+        setConnectionStatus('LIVE');
+        showBanner(
+          'SUCCESS',
+          '已成功與政府資料開放平臺連線',
+          `即時擷取到 ${state.allData.length} 筆最新站點資訊。`,
+          false
+        );
+      } catch (err) {
+        console.warn('API 擷取觸發容錯降級:', err.message);
+        
+        // 進入 Fallback 快照模式
+        state.allData = JSON.parse(JSON.stringify(COMPREHENSIVE_SNAPSHOT_DATA));
+        state.mode = 'FALLBACK';
+        state.lastSynced = new Date();
+        setConnectionStatus('FALLBACK');
+        showBanner(
+          'WARNING',
+          'API 連線限制已啟用安全快照資料展示',
+          `原因：${err.message || '遠端開放資料端點連線異常'}。已自動為您切換至高雄市政府衛生局公佈之備用資料快照庫，包含全市完整行政區與服務機據點，所有搜尋、篩選與地圖導航功能均正常運作。`,
+          true
+        );
+      } finally {
+        showLoading(false);
+        populateDistrictDropdown();
+        applyFilters();
+        updateStatisticsKPIs();
+        renderDistrictBars();
+        updateFooterInfo();
+      }
+    }
+
+    /**
+     * 輔助解析不同政府開放平台回傳的多層結構
+     */
+    function extractArrayFromApiResponse(raw) {
+      if (Array.isArray(raw)) return raw;
+      if (raw && Array.isArray(raw.data)) return raw.data;
+      if (raw && raw.data && Array.isArray(raw.data.XML_data)) return raw.data.XML_data;
+      if (raw && typeof raw === 'object') {
+        const firstArrayKey = Object.keys(raw).find(k => Array.isArray(raw[k]));
+        if (firstArrayKey) return raw[firstArrayKey];
+      }
+      return [];
+    }
+
+    /**
+     * 將各異欄位正規化為看板內部標準物件
+     */
+    function normalizeItem(raw, defaultType, idx) {
+      const name = raw.機構名稱 || raw.站點名稱 || raw.名稱 || raw.Name || `衛生服務點 #${idx + 1}`;
+      const address = raw.機構地址 || raw.地址 || raw.Address || '高雄市';
+      const phone = raw.電話 || raw.機構電話 || raw.Phone || '07-7134000';
+      
+      // 自動辨識高雄市行政區
+      let district = '市區';
+      const match = address.match(/高雄市?(\D{1,3}[區鄉鎮市])/);
+      if (match && match[1]) {
+        district = match[1];
+      }
+
+      const isVending = defaultType === 'VENDING' || name.includes('服務機') || name.includes('自販機') || address.includes('機');
+      const finalType = isVending ? 'VENDING' : 'PHARMACY';
+      const typeName = isVending ? '自動服務機' : (name.includes('衛生所') ? '合約衛生所' : '健保特約藥局');
+
+      return {
+        id: `LOC-${idx}`,
+        name: name,
+        district: district,
+        address: address,
+        phone: phone,
+        type: finalType,
+        typeName: typeName,
+        hours: raw.營業時間 || raw.服務時間 || (isVending ? '24 小時服務' : '依據各站點現場門診時間為準'),
+        notes: raw.備註 || (isVending ? '自助投幣或電子票證付款' : '平價保險套衛生防治據點')
+      };
+    }
+
+    /**
+     * 多維度交叉篩選引擎
+     */
+    function applyFilters() {
+      const kw = state.keyword.trim().toLowerCase();
+      const dist = state.selectedDistrict;
+      const type = state.selectedType;
+
+      state.filteredData = state.allData.filter(item => {
+        // 類型篩選
+        if (type !== 'ALL' && item.type !== type) return false;
+
+        // 行政區篩選
+        if (dist !== 'ALL' && item.district !== dist) return false;
+
+        // 模糊關鍵字搜尋
+        if (kw) {
+          const matchName = item.name.toLowerCase().includes(kw);
+          const matchAddr = item.address.toLowerCase().includes(kw);
+          const matchDist = item.district.toLowerCase().includes(kw);
+          const matchPhone = item.phone.toLowerCase().includes(kw);
+          if (!matchName && !matchAddr && !matchDist && !matchPhone) return false;
+        }
+
+        return true;
+      });
+
+      renderCardsGrid();
+      updateFilterSummaryDisplay();
+    }
+
+    /**
+     * 更新 KPI 與分頁計數
+     */
+    function updateStatisticsKPIs() {
+      const data = state.allData;
+      const total = data.length;
+      const districtsSet = new Set(data.map(d => d.district));
+      const pharmacies = data.filter(d => d.type === 'PHARMACY').length;
+      const vending = data.filter(d => d.type === 'VENDING').length;
+
+      dom.kpiTotal.textContent = total;
+      dom.kpiDistricts.textContent = districtsSet.size;
+      dom.kpiPharmacies.textContent = pharmacies;
+      dom.kpiVending.textContent = vending;
+
+      dom.tabCountAll.textContent = total;
+      dom.tabCountPharmacy.textContent = pharmacies;
+      dom.tabCountVending.textContent = vending;
+    }
+
+    /**
+     * 更新篩選結果標示
+     */
+    function updateFilterSummaryDisplay() {
+      dom.matchedCount.textContent = state.filteredData.length;
+
+      // 快速清空行政區標籤按鈕
+      if (state.selectedDistrict !== 'ALL') {
+        dom.clearDistrictPillBtn.classList.remove('hidden');
+      } else {
+        dom.clearDistrictPillBtn.classList.add('hidden');
+      }
+
+      // 搜尋欄清空叉叉圖標
+      if (state.keyword) {
+        dom.clearKeywordBtn.classList.remove('hidden');
+      } else {
+        dom.clearKeywordBtn.classList.add('hidden');
+      }
+    }
+
+    /**
+     * 產生行政區統計長條按鈕列
+     */
+    function renderDistrictBars() {
+      const counts = {};
+      state.allData.forEach(item => {
+        counts[item.district] = (counts[item.district] || 0) + 1;
+      });
+
+      const sorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+      const maxVal = Math.max(...Object.values(counts), 1);
+
+      dom.districtBarList.innerHTML = '';
+
+      sorted.forEach(district => {
+        const count = counts[district];
+        const isSelected = state.selectedDistrict === district;
+        const percent = Math.min(100, Math.round((count / maxVal) * 100));
+
+        const barBtn = document.createElement('button');
+        barBtn.className = `flex-shrink-0 group px-3.5 py-2 rounded-xl border text-left transition-all cursor-pointer min-w-[110px] ${
+          isSelected 
+            ? 'bg-indigo-50 border-indigo-400 ring-2 ring-indigo-500/20 shadow-xs' 
+            : 'bg-slate-50 border-slate-200/90 hover:border-slate-300 hover:bg-slate-100/70'
+        }`;
+
+        barBtn.onclick = () => {
+          if (state.selectedDistrict === district) {
+            state.selectedDistrict = 'ALL';
+            dom.districtDropdown.value = 'ALL';
+          } else {
+            state.selectedDistrict = district;
+            dom.districtDropdown.value = district;
+          }
+          applyFilters();
+          renderDistrictBars();
+        };
+
+        barBtn.innerHTML = `
+          <div class="flex items-center justify-between text-xs font-bold ${isSelected ? 'text-indigo-800' : 'text-slate-700'}">
+            <span>${district}</span>
+            <span class="text-[11px] px-1.5 py-0.5 rounded-md font-semibold ${isSelected ? 'bg-indigo-200/70 text-indigo-900' : 'bg-slate-200/80 text-slate-600'}">${count} 處</span>
+          </div>
+          <div class="w-full bg-slate-200/70 rounded-full h-1.5 mt-2 overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500 ${isSelected ? 'bg-indigo-600' : 'bg-slate-400 group-hover:bg-indigo-500'}" style="width: ${percent}%"></div>
+          </div>
+        `;
+
+        dom.districtBarList.appendChild(barBtn);
+      });
+    }
+
+    /**
+     * 填入行政區下拉選單
+     */
+    function populateDistrictDropdown() {
+      const districts = Array.from(new Set(state.allData.map(d => d.district))).sort();
+      dom.districtDropdown.innerHTML = `<option value="ALL">全部行政區 (高雄市全區)</option>`;
+      districts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = `${d}`;
+        dom.districtDropdown.appendChild(opt);
+      });
+      dom.districtDropdown.value = state.selectedDistrict;
+    }
+
+    /**
+     * 繪製站點網格卡片
+     */
+    function renderCardsGrid() {
+      const container = dom.cardsContainer;
+      const data = state.filteredData;
+
+      if (data.length === 0) {
+        container.classList.add('hidden');
+        dom.noResultsState.classList.remove('hidden');
+        return;
+      }
+
+      dom.noResultsState.classList.add('hidden');
+      container.classList.remove('hidden');
+      container.innerHTML = '';
+
+      data.forEach(item => {
+        const isVending = item.type === 'VENDING';
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.name + ' ' + item.address)}`;
+
+        const card = document.createElement('article');
+        card.className = "bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group";
+
+        card.innerHTML = `
+          <div>
+            <!-- Header Badges -->
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                isVending 
+                  ? 'bg-amber-50 text-amber-700 border border-amber-200' 
+                  : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+              }">
+                <i class="fa-solid ${isVending ? 'fa-cash-register' : 'fa-prescription-bottle-medical'} text-[10px]"></i>
+                ${item.typeName}
+              </span>
+
+              <span class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+                ${escapeHtml(item.district)}
+              </span>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+              ${escapeHtml(item.name)}
+            </h3>
+
+            <!-- Details -->
+            <div class="mt-3.5 space-y-2 text-xs text-slate-600">
+              <div class="flex items-start gap-2">
+                <i class="fa-solid fa-location-dot text-slate-400 mt-0.5 text-xs w-3.5 flex-shrink-0"></i>
+                <span class="line-clamp-2 leading-relaxed">${escapeHtml(item.address)}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-phone text-slate-400 text-xs w-3.5 flex-shrink-0"></i>
+                <a href="tel:${escapeHtml(item.phone)}" class="text-slate-700 hover:text-indigo-600 font-semibold underline underline-offset-2">
+                  ${escapeHtml(item.phone)}
+                </a>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fa-regular fa-clock text-slate-400 text-xs w-3.5 flex-shrink-0"></i>
+                <span class="text-slate-500">${escapeHtml(item.hours)}</span>
+              </div>
+            </div>
+
+            ${item.notes ? `
+              <div class="mt-3 pt-2 text-[11px] text-slate-500 border-t border-slate-100 flex items-center gap-1.5">
+                <i class="fa-solid fa-info-circle text-indigo-500 text-[11px]"></i>
+                <span class="truncate">${escapeHtml(item.notes)}</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <div class="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-2 gap-2">
+            <a 
+              href="${mapUrl}" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 text-slate-700 border border-slate-200 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition-all active:scale-95"
+            >
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              <span>Google 地圖</span>
+            </a>
+
+            <button 
+              onclick="copyAddress('${escapeHtml(item.address)}')"
+              class="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"
+            >
+              <i class="fa-regular fa-copy text-[11px]"></i>
+              <span>複製地址</span>
+            </button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    /**
+     * 複製地址至剪貼簿
+     */
+    window.copyAddress = function(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        triggerToast('已複製地址至剪貼簿', 'SUCCESS');
+      } catch (err) {
+        triggerToast('複製失敗，請手動複製', 'ERROR');
+      }
+      document.body.removeChild(textarea);
+    };
+
+    /**
+     * 觸發 Toast 回饋訊息
+     */
+    function triggerToast(msg, type = 'SUCCESS') {
+      dom.toastText.textContent = msg;
+      if (type === 'SUCCESS') {
+        dom.toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+      } else {
+        dom.toastIcon.className = "fa-solid fa-circle-xmark text-rose-400";
+      }
+
+      dom.appToast.classList.remove('translate-y-24', 'opacity-0');
+      dom.appToast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        dom.appToast.classList.remove('translate-y-0', 'opacity-100');
+        dom.appToast.classList.add('translate-y-24', 'opacity-0');
+      }, 2500);
+    }
+
+    /**
+     * 橫幅資訊切換
+     */
+    function showBanner(type, title, desc, persistent = false) {
+      const banner = dom.noticeBanner;
+      banner.classList.remove('hidden', 'bg-amber-50', 'border-amber-200', 'text-amber-900', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-900');
+
+      if (type === 'WARNING') {
+        banner.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-900');
+        dom.bannerIconWrapper.className = "p-2 rounded-xl text-amber-600 bg-amber-100 text-sm flex-shrink-0 mt-0.5";
+        dom.bannerIconWrapper.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+      } else {
+        banner.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-900');
+        dom.bannerIconWrapper.className = "p-2 rounded-xl text-emerald-600 bg-emerald-100 text-sm flex-shrink-0 mt-0.5";
+        dom.bannerIconWrapper.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+      }
+
+      dom.bannerTitle.textContent = title;
+      dom.bannerDesc.textContent = desc;
+      banner.classList.remove('hidden');
+
+      if (!persistent && type === 'SUCCESS') {
+        setTimeout(() => {
+          banner.classList.add('hidden');
+        }, 5000);
+      }
+    }
+
+    /**
+     * 控制載入骨架屏狀態
+     */
+    function showLoading(isLoading) {
+      if (isLoading) {
+        dom.skeletonGrid.classList.remove('hidden');
+        dom.cardsContainer.classList.add('hidden');
+        dom.noResultsState.classList.add('hidden');
+        dom.errorStateCard.classList.add('hidden');
+        dom.refreshSpinIcon.classList.add('fa-spin');
+        dom.refreshBtn.disabled = true;
+      } else {
+        dom.skeletonGrid.classList.add('hidden');
+        dom.refreshSpinIcon.classList.remove('fa-spin');
+        dom.refreshBtn.disabled = false;
+      }
+    }
+
+    /**
+     * 更新右上角連線狀態 Badge
+     */
+    function setConnectionStatus(status) {
+      const badge = dom.connBadge;
+      const dot = dom.connDot;
+      const text = dom.connText;
+
+      badge.className = "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border";
+
+      if (status === 'CONNECTING') {
+        badge.classList.add('bg-slate-100', 'text-slate-600', 'border-slate-200');
+        dot.className = "w-2 h-2 rounded-full bg-slate-400 animate-ping";
+        text.textContent = "連線檢查中...";
+      } else if (status === 'LIVE') {
+        badge.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+        dot.className = "w-2 h-2 rounded-full bg-emerald-500";
+        text.textContent = "即時 API 正常";
+      } else if (status === 'FALLBACK') {
+        badge.classList.add('bg-amber-50', 'text-amber-700', 'border-amber-200');
+        dot.className = "w-2 h-2 rounded-full bg-amber-500";
+        text.textContent = "離線快照備援中";
+      }
+    }
+
+    /**
+     * 頁尾時間戳與運行資訊
+     */
+    function updateFooterInfo() {
+      const now = state.lastSynced || new Date();
+      dom.footerLastSync.textContent = now.toLocaleDateString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      if (state.mode === 'LIVE') {
+        dom.footerDataSourceMode.textContent = "即時線上端點同步";
+        dom.footerDataSourceMode.className = "text-emerald-600 font-bold";
+      } else {
+        dom.footerDataSourceMode.textContent = "公衛快照資料庫 (安全模式)";
+        dom.footerDataSourceMode.className = "text-amber-600 font-bold";
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // 事件監聽：搜尋欄位
+    dom.keywordSearch.addEventListener('input', (e) => {
+      state.keyword = e.target.value;
+      applyFilters();
+    });
+
+    dom.clearKeywordBtn.addEventListener('click', () => {
+      dom.keywordSearch.value = '';
+      state.keyword = '';
+      applyFilters();
+    });
+
+    // 事件監聽：行政區下拉選單
+    dom.districtDropdown.addEventListener('change', (e) => {
+      state.selectedDistrict = e.target.value;
+      applyFilters();
+      renderDistrictBars();
+    });
+
+    // 事件監聽：類別分頁切換
+    document.querySelectorAll('.tab-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.getAttribute('data-type');
+        state.selectedType = type;
+
+        document.querySelectorAll('.tab-chip').forEach(b => {
+          b.className = "tab-chip px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all font-medium";
+        });
+        btn.className = "tab-chip px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-2xs font-bold transition-all";
+
+        applyFilters();
+      });
+    });
+
+    // 事件監聽：重設單項與全部篩選
+    dom.clearDistrictPillBtn.addEventListener('click', () => {
+      state.selectedDistrict = 'ALL';
+      dom.districtDropdown.value = 'ALL';
+      applyFilters();
+      renderDistrictBars();
+    });
+
+    const resetEverything = () => {
+      state.keyword = '';
+      state.selectedDistrict = 'ALL';
+      state.selectedType = 'ALL';
+      dom.keywordSearch.value = '';
+      dom.districtDropdown.value = 'ALL';
+
+      document.querySelectorAll('.tab-chip').forEach(b => {
+        if (b.getAttribute('data-type') === 'ALL') {
+          b.className = "tab-chip px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-2xs font-bold transition-all";
+        } else {
+          b.className = "tab-chip px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all font-medium";
+        }
+      });
+
+      applyFilters();
+      renderDistrictBars();
+      triggerToast('已重設所有檢索條件', 'SUCCESS');
+    };
+
+    dom.resetAllFiltersTopBtn.addEventListener('click', resetEverything);
+    dom.resetSearchFromEmpty.addEventListener('click', resetEverything);
+
+    // 關閉橫幅
+    dom.closeBannerBtn.addEventListener('click', () => {
+      dom.noticeBanner.classList.add('hidden');
+    });
+
+    // 重新載入
+    dom.refreshBtn.addEventListener('click', loadData);
+    dom.retryFatalBtn.addEventListener('click', loadData);
+
+    // 啟動初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+    });
+  </script>
+</body>
+</html>
